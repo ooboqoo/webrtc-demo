@@ -1,0 +1,30 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #666;
+}
+
+#video {
+  margin: 0 auto;
+}
+
+#video_local {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100px;
+  height: 75px;
+  background-image: url("assets/none.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+#video_remote {
+  width: 250px;
+  height: 188px;
+  background-image: url("assets/sload.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}

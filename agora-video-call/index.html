@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Agora Web Demo </title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: row-reverse;
+      width: 420px;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+    .panel {
+      margin: 10px;
+      text-align: center;
+    }
+    .panel-control button {
+      width: 120px;
+      margin: 5px 2px;
+      padding: 6px 0;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="panel">
+    <div class="panel-control">
+      <button id="join" onclick="join()">进入课堂 Join</button>
+      <button id="leave" disabled onclick="leave()">离开课堂 Leave</button>
+    </div>
+  </div>
+  <iframe id="agora" src="./agora.html" frameborder="0" width="250" height="188"
+          onload="onAgoraLoad()" onerror="onAgoraLoadError()">
+  </iframe>
+  <script>
+    let agoraWindow, agoraChannel
+
+    window.addEventListener('message', function ({data}) {
+      processData(data)
+    })
+
+    function onAgoraLoad () {
+      console.log('agora.html loaded')
+      agoraWindow = agora.contentWindow
+      agoraChannel = {
+        send: function (data) {
+          agoraWindow.postMessage(data, '*')
+        }
+      }
+    }
+
+    function onAgoraLoadError () { }
+
+    function join () {
+      document.getElementById('join').disabled = true
+      document.getElementById("leave").disabled = false
+      agoraChannel.send({operation: 'join'})
+    }
+
+    function leave () {
+      document.getElementById('join').disabled = false
+      document.getElementById("leave").disabled = true
+      agoraChannel.send({operation: 'leave'})
+    }
+
+    function processData (data) {
+      if (data === null || data === undefined) { return }
+      console.log('[IPC]', data)
+      if (data.devices) {
+        data.devices.forEach(device => {
+          if (device.kind === 'audioinput') {
+          } else if (device.kind === 'videoinput') {
+          } else {
+            // console.log('Some other kind of source/device:', device)
+          }
+        })
+      }
+    }
+  </script>
+</body>
+</html>
