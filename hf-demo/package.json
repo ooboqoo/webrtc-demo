@@ -1,5 +1,8 @@
 {
   "scripts": {
     "start": "live-server --https=../https-cert"
+  },
+  "dependencies": {
+    "agora-rtc-sdk": "^2.5.2"
   }
 }

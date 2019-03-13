@@ -114,4 +114,5 @@
       console.log('[AgoraRTC]', '[' + level + ']', text, ...args)
     }
   }
+// @ts-ignore
 })(window.AgoraRTC);
