@@ -61,48 +61,6 @@ export default class ArtcController {
     })
   }
 
-  /** 开启设备(开启流) */
-  openDevice (opts, fn) {
-
-  }
-
-  _openDevice (opts, fn) { }
-
-  publish (fn) { }
-
-  unpublise (fn) { }
-
-  /** 关闭设备(关闭流) */
-  closeDevice () {
-    if (this._stream) {
-      this._stream.close()
-      this._stream = null
-    }
-  }
-
-  /**
-   * 进入房间
-   * @param {string} roomId    房间号
-   * @param {string} userId    用户 id
-   * @param {number} userType  用户类型
-   * @param {Function} [callback]
-   */
-  enterRoom (roomId, userId, userType, callback) {
-    this._client.join(null, roomId, null, uid => {
-      this._roomId = roomId
-      this._userId = userId
-      this._userType = userType
-      this._uid = uid
-    }, err => {
-      callback(err)
-    })
-  }
-
-  /** 离开房间 */
-  leaveRoom (callback) {
-    this._client.leave(callback, callback)
-  }
-
   /** 初始化连接 */
   init (callback) {
     this._client.init(this._opts.key, () => {
@@ -113,12 +71,68 @@ export default class ArtcController {
     })
   }
 
+  /**
+   * 进入房间
+   * @param {string} roomId    房间号
+   * @param {string} userId    用户 id
+   * @param {number} userType  用户类型
+   * @param {Function} [callback]
+   */
+  enterRoom (roomId, userId, userType, callback) {
+    this._client.join(null, roomId, +userId, uid => {  // uid = +userId
+      this._roomId = roomId
+      this._userId = userId
+      this._userType = userType
+      this._uid = uid
+    }, err => {
+      callback(err)
+    })
+  }
+
   /** 获取音视频设备列表 */
-  enumDevices (fn) {
+  enumDevices (callback) {
     AgoraRTC.getDevices(devices => {
       this._devices = devices || []
-      if (fn) { fn(null, this._devices) }
+      if (callback) { callback(null, this._devices) }
     })
+  }
+
+  /** 开启设备(开启流) */
+  openDevice (opts, callback) {
+    // 创建音视频流
+    this._stream = AgoraRTC.createStream({
+      streamID: this._uid,
+      audio: opts.audio,  // 音频
+      video: opts.video,  // 视频
+      screen: false // 屏幕共享
+    })
+
+    if (opts.video) {
+      this._stream.setVideoProfile('720p_3')
+    }
+
+    this._stream.play('video_local')
+  }
+
+  publish (callback) {
+    this._client.publish(this._stream, callback)
+  }
+
+  unpublise (callback) {
+    this._client.unpublish(this._stream, callback)
+  }
+
+  /** 关闭设备(关闭流) */
+  closeDevice () {
+    if (this._stream) {
+      this._stream.close()
+      this._stream = null
+    }
+  }
+
+  /** 离开房间 */
+  leaveRoom (callback) {
+    this._client.leave(callback, callback)
   }
 
   // 以下都是处理静音的代码-------------------------------------------------

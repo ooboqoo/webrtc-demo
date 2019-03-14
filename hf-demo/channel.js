@@ -2,9 +2,9 @@
  * 此文件同时用于页面及其内嵌 iframe 中
  */
 
-import { IframeChannel } from '../util/iframe-rpc'
+import { IframeChannel } from './iframe-rpc'
 
-const CHANNEL_NAME = 'artc'
+const CHANNEL_NAME = 'webrtc'
 const isIframe = window.parent !== window
 
 const channel = new IframeChannel({name: CHANNEL_NAME, origin: '*'})
