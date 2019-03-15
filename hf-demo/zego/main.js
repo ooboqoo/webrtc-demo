@@ -1,13 +1,13 @@
-import ArtcController from './controller'
+import ZegoController from './controller'
 import { RtcChannelChild } from '../rtc-channel'
 
 const rtcChannel = new RtcChannelChild()
 
-rtcChannel.getRtcService('artc', function (err, config, callback) {
-  const controller = new ArtcController({
+rtcChannel.getRtcService('zego', function (err, config, callback) {
+  const controller = new ZegoController({
     localElementId: 'artc_local',
     remoteElementId: 'artc_view',
-    key: config.key,
+    config,
     onRecvStream: function (next) {
       rtcChannel.userJoined()
       next()
@@ -42,5 +42,5 @@ rtcChannel.getRtcService('artc', function (err, config, callback) {
 })
 
 function debug (...args) {
-  console.error('[ARTC]', ...args)
+  console.error('[Zego]', ...args)
 }

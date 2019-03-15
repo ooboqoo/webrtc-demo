@@ -3,6 +3,7 @@
     "start": "live-server --https=../https-cert"
   },
   "dependencies": {
-    "agora-rtc-sdk": "^2.5.2"
+    "agora-rtc-sdk": "^2.5.2",
+    "webrtc-zego": "^1.2.0"
   }
 }

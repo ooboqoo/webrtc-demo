@@ -1,5 +1,7 @@
 import AgoraRTC from 'agora-rtc-sdk'
 
+AgoraRTC.Logger.setLogLevel(4)  // 0 DEBUG | 1 INFO | 2 WARNING | 3 ERROR | 4 NONE
+
 /**
  * 声网 WebRTC 接口兼容层
  */
@@ -61,7 +63,10 @@ export default class ArtcController {
     })
   }
 
-  /** 初始化连接 */
+  /**
+   * 初始化连接
+   * @param {(err?: Error) => void} callback  初始化成功或失败后的回调
+   */
   init (callback) {
     this._client.init(this._opts.key, () => {
       debug('初始化完成')
@@ -106,20 +111,35 @@ export default class ArtcController {
       video: opts.video,  // 视频
       screen: false // 屏幕共享
     })
-
     if (opts.video) {
-      this._stream.setVideoProfile('720p_3')
+      this._stream.setVideoProfile('480p_1')
     }
-
-    this._stream.play('video_local')
+    this._stream.init(() => {
+      if (this._opts.localElementId) {
+        this._stream.play(this._opts.localElementId)
+        callback()
+      }
+    }, err => {
+      callback(err)
+    })
   }
 
+  /**
+   * @param {(err?: Error) => void} callback  发布成功或失败后的回调
+   */
   publish (callback) {
-    this._client.publish(this._stream, callback)
+    this._client.on('stream-published', () => {
+      debug('发布本地流成功')
+      callback()
+    })
+    this._client.publish(this._stream, err => {
+      debug.error('发布本地流失败')
+      callback(err)
+    })
   }
 
-  unpublise (callback) {
-    this._client.unpublish(this._stream, callback)
+  unpublise (onFailure) {
+    this._client.unpublish(this._stream, onFailure)
   }
 
   /** 关闭设备(关闭流) */
@@ -170,4 +190,8 @@ export default class ArtcController {
 
 function debug (...args) {
   console.log('[ARTC]', ...args)
+}
+
+debug.error = function (...args) {
+  console.error('[ARTC]', ...args)
 }
