@@ -1,14 +1,17 @@
-import { ZegoController } from './controller.js'
-import { createToken } from './mock.js'
+import { ZegoController } from './controller'
+import { createToken } from './mock'
 
 // 即构分配的账户信息
 const APPID = 4004573812
 const SERVER = 'wss://wsliveroom-test.zego.im:8282/ws'
 const LOGURL = 'wss://wslogger-test.zego.im:8282/log'
 
+const localVideoElementId = 'video_local'
+const remoteVideoElementId = 'video_remote'
+
 const roomId = '123456'
 const userId = getParamByName('user_id') || '' + (Math.random() * 100000 | 0)
-const role = +getParamByName('role') || 1
+const role = /** @type {1|2} */(+getParamByName('role')) || 1
 
 const controller = new ZegoController({
   appid: APPID,
@@ -16,11 +19,14 @@ const controller = new ZegoController({
   nickName: 'u' + new Date().getTime(),  // 用户昵称
   server: SERVER,  // 服务器地址
   logUrl: LOGURL,   // 远程日志服务器 websocket 地址
-  logLevel: 0,      // 日志级别  0:debug 1:info 2:warn 3:error 98:report 100:disable	
+  logLevel: 0,      // 日志级别  0:debug 1:info 2:warn 3:error 98:report 100:disable
   remoteLogLevel: 3,
   audienceCreateRoom: true  // 观众是否可以创建房间
 })
 // window.ctrl = controller
+
+controller.setLocalVideoElement(localVideoElementId)
+controller.setRemoteVideoElement(remoteVideoElementId)
 
 getToken(APPID, userId, (err, token) => {
   if (err) {
@@ -34,7 +40,7 @@ getToken(APPID, userId, (err, token) => {
     } else {
       debug('登录房间成功', roomId)
     }
-    controller.playLocalVideo('video_local', err => {
+    controller.playLocalVideo(localVideoElementId, err => {
       if (err) {
         return debug.error('打开设备失败', err)
       } else {
@@ -46,7 +52,7 @@ getToken(APPID, userId, (err, token) => {
 })
 
 /** 从后端获取登录信息(TOKEN) */
-function getToken(appId, userId, callback) {
+function getToken (appId, userId, callback) {
   const token = createToken(appId, userId, 3600)
   callback(null, token)
 }
@@ -55,13 +61,13 @@ function getToken(appId, userId, callback) {
 function getParamByName (key) {
   const search = location.search
   if (search.length < 2) { return null }
-  const param_arr = search.substring(1).split('&')
-  const param_map = {}
-  param_arr.forEach(item => {
+  const paramArr = search.substring(1).split('&')
+  const paramMap = {}
+  paramArr.forEach(item => {
     const entry = item.split('=')
-    param_map[entry[0]] = entry[1]
+    paramMap[entry[0]] = entry[1]
   })
-  return param_map[key]
+  return paramMap[key]
 }
 
 function debug (...args) {

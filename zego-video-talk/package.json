@@ -1,8 +1,7 @@
 {
   "name": "zego-webrtc",
   "scripts": {
-    "start": "live-server --https=../https-cert",
-    "parcel": "parcel --https index.html"
+    "start": "parcel --https index.html"
   },
   "dependencies": {
     "webrtc-zego": "^1.2.0"
