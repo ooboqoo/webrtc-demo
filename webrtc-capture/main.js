@@ -44,19 +44,27 @@ function addPhoto () {
   gallery.appendChild(photo.cloneNode(true))
 }
 
-navigator.getUserMedia(
-  {
-    video: true,
-    audio: false
-  },
-  function (stream) {
-    video.srcObject = stream
-    video.play()
-  },
-  function (err) {
-    console.log('An error occured! ' + err)
+navigator.mediaDevices.enumerateDevices().then(devices => {
+  console.log({devices})
+  const hasCamera = !!devices.filter(device => device.kind === 'videoinput').length
+  if (!hasCamera) {
+    alert('没有找打可用摄像头！')
+  } else {
+    navigator.getUserMedia(
+      {
+        video: true,
+        audio: false
+      },
+      function (stream) {
+        video.srcObject = stream
+        video.play()
+      },
+      function (err) {
+        console.log('An error occured! ' + err)
+      }
+    )
   }
-)
+})
 
 video.addEventListener('canplay', function (ev) {
   if (!streaming) {
