@@ -1,114 +1,75 @@
-(function() {
-  // The width and height of the captured photo. We will set the
-  // width to the value defined here, but the height will be
-  // calculated based on the aspect ratio of the input stream.
+/** 图片宽度 */
+const width = 320
 
-  var width = 320;    // We will scale the photo width to this
-  var height = 0;     // This will be computed based on the input stream
+/** 图片高度, 高度会根据输入流宽高比自动调整 */
+let height = 0
 
-  // |streaming| indicates whether or not we're currently streaming
-  // video from the camera. Obviously, we start at false.
+/** 是否正在实时抓取摄像头图像 */
+let streaming = false
 
-  var streaming = false;
+const video = /** @type HTMLVideoElement */(document.getElementById('video'))
+const canvas = /** @type HTMLCanvasElement */(document.getElementById('canvas'))
+const photo = document.getElementById('photo')
+const gallery = document.querySelector('.gallery')
+const takePhotoButton = document.getElementById('takePhoto')
+const addPhotoButton = document.getElementById('addPhoto')
 
-  // The various HTML elements we need to configure or control. These
-  // will be set by the startup() function.
+/** 拍照 */
+function takePhoto () {
+  const context = canvas.getContext('2d')
+  if (width && height) {
+    canvas.width = width
+    canvas.height = height
+    context.drawImage(video, 0, 0, width, height)
 
-  var video = null;
-  var canvas = null;
-  var photo = null;
-  var startbutton = null;
-
-  function startup() {
-    video = document.getElementById('video');
-    canvas = document.getElementById('canvas');
-    photo = document.getElementById('photo');
-    startbutton = document.getElementById('startbutton');
-
-    navigator.getUserMedia = ( navigator.getUserMedia ||
-                           navigator.webkitGetUserMedia ||
-                           navigator.mozGetUserMedia ||
-                           navigator.msGetUserMedia);
-
-    navigator.getUserMedia(
-      {
-        video: true,
-        audio: false
-      },
-      function(stream) {
-        if (navigator.mozGetUserMedia) {
-          video.mozSrcObject = stream;
-        } else {
-          var vendorURL = window.URL || window.webkitURL;
-          video.src = vendorURL.createObjectURL(stream);
-        }
-        video.play();
-      },
-      function(err) {
-        console.log("An error occured! " + err);
-      }
-    );
-
-    video.addEventListener('canplay', function(ev){
-      if (!streaming) {
-        height = video.videoHeight / (video.videoWidth/width);
-      
-        // Firefox currently has a bug where the height can't be read from
-        // the video, so we will make assumptions if this happens.
-      
-        if (isNaN(height)) {
-          height = width / (4/3);
-        }
-      
-        video.setAttribute('width', width);
-        video.setAttribute('height', height);
-        canvas.setAttribute('width', width);
-        canvas.setAttribute('height', height);
-        streaming = true;
-      }
-    }, false);
-
-    startbutton.addEventListener('click', function(ev){
-      takepicture();
-      ev.preventDefault();
-    }, false);
-    
-    clearphoto();
+    const data = canvas.toDataURL('image/png')
+    photo.setAttribute('src', data)
+  } else {
+    clearPhoto()
   }
+}
 
-  // Fill the photo with an indication that none has been
-  // captured.
+/** 清空当前照片 */
+function clearPhoto () {
+  const context = canvas.getContext('2d')
+  context.fillStyle = '#eee'
+  context.fillRect(0, 0, canvas.width, canvas.height)
 
-  function clearphoto() {
-    var context = canvas.getContext('2d');
-    context.fillStyle = "#AAA";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+  const data = canvas.toDataURL('image/png')
+  photo.setAttribute('src', data)
+}
 
-    var data = canvas.toDataURL('image/png');
-    photo.setAttribute('src', data);
+/** 将当前照片添加到相册 */
+function addPhoto () {
+  gallery.appendChild(photo.cloneNode(true))
+}
+
+navigator.getUserMedia(
+  {
+    video: true,
+    audio: false
+  },
+  function (stream) {
+    video.srcObject = stream
+    video.play()
+  },
+  function (err) {
+    console.log('An error occured! ' + err)
   }
-  
-  // Capture a photo by fetching the current contents of the video
-  // and drawing it into a canvas, then converting that to a PNG
-  // format data URL. By drawing it on an offscreen canvas and then
-  // drawing that to the screen, we can change its size and/or apply
-  // other changes before drawing it.
+)
 
-  function takepicture() {
-    var context = canvas.getContext('2d');
-    if (width && height) {
-      canvas.width = width;
-      canvas.height = height;
-      context.drawImage(video, 0, 0, width, height);
-    
-      var data = canvas.toDataURL('image/png');
-      photo.setAttribute('src', data);
-    } else {
-      clearphoto();
-    }
+video.addEventListener('canplay', function (ev) {
+  if (!streaming) {
+    height = video.videoHeight / (video.videoWidth/width)
+    video.setAttribute('width', String(width))
+    video.setAttribute('height', String(height))
+    canvas.setAttribute('width', String(width))
+    canvas.setAttribute('height', String(height))
+    streaming = true
   }
+}, false)
 
-  // Set up our event listener to run the startup process
-  // once loading is complete.
-  window.addEventListener('load', startup, false);
-})();
+takePhotoButton.onclick = takePhoto
+addPhotoButton.onclick = addPhoto
+
+clearPhoto()
