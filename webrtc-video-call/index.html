@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>WebSocket Chat Demo with WebRTC Calling</title>
+  <style>
+    .container {
+      display: flex;
+      border: 1px solid #eee;
+      box-shadow: 2px 2px 4px #eee;
+    }
+
+    #user_list {
+      display: block;
+      flex: none;
+      width: 110px;
+      margin: 0;
+      padding: 10px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      list-style: none;
+      line-height: 1.1;
+    }
+
+    #user_list li {
+      padding: 1px;
+      cursor: pointer;
+    }
+
+    .chat-container {
+      flex: auto;
+      border: 1px solid #eee;
+      border-width: 0 1px;
+    }
+
+    #chat_box {
+      width: 100%;
+      height: 740px;
+      border: 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .chat-controls-container {
+      display: flex;
+      margin: 6px 6px 10px;
+    }
+
+    .camera-container {
+      display: block;
+      position: relative;
+      width: 480px;
+      overflow: auto;
+    }
+
+    #remote_video {
+      width: 480px;
+      height: 360px;
+      background-color: #eee;
+    }
+
+    #local_video {
+      position: absolute;
+      top: 270px;
+      right: 0;
+      width: 120px;
+      height: 90px;
+      background-color: #ccc;
+    }
+
+    #hangup_button {
+      display: block;
+      position: relative;
+      width: 80px;
+      height: 24px;
+      margin: 20px auto;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 4px;
+      background-color: rgba(150, 0, 0, 0.5);
+      box-shadow: 0px 0px 1px 2px rgba(0, 0, 0, 0.2);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #hangup_button:hover {
+      filter: brightness(150%);
+    }
+
+    #hangup_button:disabled {
+      cursor: default;
+      filter: grayscale(50%);
+    }
+  </style>
+</head>
+<body>
+  <div style="margin-bottom: 10px;">
+    用户名:
+    <input id="name" maxlength="12" required placeholder="只可输入英文字母和数字">
+    <button onclick="connect()">登录</button>
+  </div>
+
+  <div class="container">
+    <ul id="user_list"></ul>
+    <div class="chat-container">
+      <iframe id="chat_box"></iframe>
+      <div class="chat-controls-container">
+        <input id="text" name="text" maxlength="256" autocomplete="off"
+               placeholder="请输入消息内容" onkeyup="handleKey(event)" disabled
+               style="flex: auto;">
+        <button id="send" name="send" onclick="handleSendButton()" disabled>发送</button>
+      </div>
+    </div>
+    <div class="camera-container">
+      <video id="remote_video" autoplay></video>
+      <video id="local_video" autoplay muted></video>
+      <button id="hangup_button" onclick="hangUpCall();" disabled>挂断</button>
+      <p style="margin-left: 8px; color: #999; user-select: none;">
+        注: 请在左侧列表中选中一个用户进行一对一视频对话
+      </p>
+    </div>
+  </div>
+  <script src="chat-client.js"></script>
+</body>
+</html>

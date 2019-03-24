@@ -1,0 +1,6 @@
+{
+  "name": "webrtc-video-call",
+  "dependencies": {
+    "ws": "^6.2.0"
+  }
+}
